@@ -11,7 +11,7 @@ data_and_features:
     Fs: 44100
         
     selected_feature: "FFT" # FFT, STFT, MelEner, MelLog
-    apply_xai: True # False True
+    apply_xai: False # False True
     num_hidd_dim: 200   
 
     

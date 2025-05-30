@@ -10,7 +10,7 @@ data_and_features:
     Fs: 44100
 
     selected_feature: "FFT" # FFT, STFT, MelEner, MelLog
-    apply_xai: True # False True
+    apply_xai: False # False True
     num_hidd_dim: 200   
     
     
@@ -40,8 +40,8 @@ data_and_features:
 model_optimization:
   test_size: 0.15
   batch_size: 32
-  n_epochs: 80
-  lrate: 0.0005
+  n_epochs: 20
+  lrate: 0.0001
   device: "cuda"
 
 
