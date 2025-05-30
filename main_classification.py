@@ -1,6 +1,6 @@
 import numpy as np
-import Functions_DataFeatures as ff
-import Function_Models as modata
+import data_functions as ff
+import nn_models_functions as modata
 import time 
 import torch
 import torch.optim as optim
@@ -22,7 +22,7 @@ def load_config(config_file):
 def main():   
     
     
-    config = load_config("config.yaml")  
+    config = load_config("config_train_model.yaml")  
     df_config = config['data_and_features']
     mtrain_config = config['model_optimization']
 
@@ -89,26 +89,26 @@ def main():
     X_train = data.DataLoader(X_train, batch_size=batch_size, shuffle=True, num_workers=0, drop_last=True)
     X_test = data.DataLoader(X_test, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
-
     ################## MODEL AND TRAINING ###################
     device = mtrain_config['device']
     
 
-    
+    # ***
     model_name = model_save_folder + "model_" + chosen_features + "_" 
     if chosen_features == "FFT": 
         model_name += "DNN"
         if kwargs_arguments["apply_xai"]:
             model = modata.DNN_XAI(X_all.shape[1], n_classes=n_classes, n_per_layer=[10])
         else:    
-            model = modata.DNN(X_all.shape[1], n_classes=n_classes, n_per_layer=[10])
+            model = modata.DNN(X_all.shape[1], n_classes=n_classes, n_per_layer=[64,32])
 
         
     elif chosen_features == "STFT" or chosen_features == "MelLog" or chosen_features == "MelEner":  
         model_name += "CNN" # stft 576, mellog  256, melener 640
-        model = modata.VGG_1D(n_classes, in_channels=in_channels, n_chans1=[16,16,16,16], k_size = [3,3,3,3], padding_t='same', fc_size = 64) # 384
+        model = modata.VGG_CNN(n_classes, in_channels=in_channels, n_chans1=[16,16,16,16], k_size = [3,3,3,3], padding_t='same', fc_size = 2208) # 384
 
-
+    
+    model = model.to(device)
 # torch.save(model.state_dict(), 'stft_model.pt')
     optimizer = optim.Adam(model.parameters(), lr=mtrain_config['lrate'])
     loss_fn = torch.nn.CrossEntropyLoss()
@@ -138,7 +138,6 @@ def main():
     #np.save('Y_names_list.npy', Y_names_list)
     cm, cm_norm, _ = modata.test_model(X_test, model, n_classes, device)
     
-    ts = str(int(time.time()))
     plt.figure(figsize=(10, 8))
     sv = sns.heatmap(cm, annot=True, cmap='Blues', cbar=False, fmt = 'd', xticklabels=Y_names_list, yticklabels=Y_names_list)
     figure = sv.get_figure()    
@@ -150,21 +149,17 @@ def main():
      sv.set_ylabel("True labels", fontsize = 28)
      sv.set_title("Features - " + str(chosen_features) + "\n Pure data ", fontsize=32)
      
-     figure = sv.get_figure()    
-     figure.savefig(save_folder + 'cm_' + chosen_features + ts + '_'  + '.png', dpi=400) 
-     plt.close(figure)
-     
-     #sv.cla()
-    
-     #sv = sns.heatmap(cm_norm, annot=True, cmap='Blues', cbar=False, xticklabels=Y_names_list, yticklabels=Y_names_list)
      #figure = sv.get_figure()    
-     #figure.savefig(save_folder + 'norm_cm_' + chosen_features + '_' + ts + '.png', dpi=400) 
-
+     #figure.savefig(save_folder + 'cm_' + chosen_features + ts + '_'  + '.png', dpi=400) 
+     #plt.close(figure)
+     
     if to_save_model:
+        if kwargs_arguments["apply_xai"]:
+           model_name += "_XAI" 
+           
         model_name += ".pt"
         torch.save(model.state_dict(), model_name)
  
-    print(model.number_of_params())
     
 if __name__ == '__main__':
     main()
