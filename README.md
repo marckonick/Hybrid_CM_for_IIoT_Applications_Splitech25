@@ -1,7 +1,8 @@
 # Hybrid Condition Monitoring for IIoT Applications
 The official repository for the paper "Hybrid Condition Monitoring for IIoT Applications" 
 
-Paper link: https://ieeexplore.ieee.org/document/11091724
+Paper link: https://ieeexplore.ieee.org/document/11091724 
+
 Dataset link: https://zenodo.org/records/7551261
 
 ## Description 
