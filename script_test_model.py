@@ -206,30 +206,21 @@ for sel_class in test_classes:
 
     device = mtrain_config['device']
 
-    model_name = model_save_folder + "model_" + chosen_features + "_"  
+    
+    
     #model_name = model_save_folder + "model_STFT_CNN.pt"
     if chosen_features == "FFT": 
         if kwargs_arguments["apply_xai"]:
-            model_name += "DNN_XAI.pt"
+            model_name = model_save_folder + f"xai_dnn_model_{df_config["num_hidd_dim"]}.pt"
             model = modata.DNN_XAI(X_all.shape[1], n_classes=n_classes, n_per_layer=[10])
         else:   
-            model_name += "DNN.pt"
+            model_name = model_save_folder + "full_dnn_model.pt"
             model = modata.DNN(X_all.shape[1], n_classes=n_classes, n_per_layer=[64,32])
-    elif chosen_features == "STFT":  
-        model_name += "CNN.pt"
-        model = modata.VGG_CNN(n_classes, in_channels=in_channels, n_chans1=[16,16,16,16], k_size = [3,3,3,3], padding_t='same', fc_size = 2208) # 384
-    elif chosen_features == "MelLog":  
-        model_name += "CNN.pt"
-        model = modata.VGG_CNN(n_classes, in_channels=in_channels, n_chans1=[16,16,16,16], k_size = [3,3,3,3], padding_t='same', fc_size = 64) # 384
-    elif chosen_features == "MelEner":  
-        model_name += "CNN.pt"
-        model = modata.VGG_CNN(n_classes, in_channels=in_channels, n_chans1=[16,16,16,16], k_size = [3,3,3,3], padding_t='same', fc_size = 2560) # 384
-    
-    
+
     model.to(device)
     
-    #model.load_state_dict(torch.load(model_name, map_location=torch.device('cpu'), weights_only=True ))
-    model.load_state_dict(torch.load("saved_models/xai_dnn_200_model_paper.pt", map_location=torch.device(device), weights_only=True ))
+    model.load_state_dict(torch.load(model_name, map_location=torch.device('cpu'), weights_only=True ))
+    #model.load_state_dict(torch.load("saved_models/xai_dnn_200_model_paper.pt", map_location=torch.device(device), weights_only=True ))
 
     batch_size = mtrain_config['batch_size']
 
